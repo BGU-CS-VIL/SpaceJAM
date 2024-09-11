@@ -40,7 +40,7 @@ To train the entire model on one of the dataset, simply run:
 ```bash
 python train.py --data_folder <processed-images-dir>
 ```
-
+Please note that it is assumes that the data resides at ```data_folder/images```. 
 For more details, run:
 ```bash
 python train.py --help
@@ -49,13 +49,11 @@ python train.py --help
 
 ## Cite
 ```
-@inproceedings{barel2024spacejam,
+@inproceedings{Barel:ECCV:2024:spacejam,
       title={SpaceJAM: a Lightweight and Regularization-free Method for Fast Joint Alignment of Images}, 
       author={Nir Barel and Ron Shapira Weber and Nir Mualem and Shahaf E. Finder and Oren Freifeld},
       year={2024},
-      eprint={2407.11850},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV},
-      url={https://arxiv.org/abs/2407.11850}, 
+      booktitle={European Conference on Computer Vision},
 }
+
 ```
