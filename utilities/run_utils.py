@@ -185,7 +185,7 @@ def forward_inference_all(dataset: Dataset, autoencoder: Autoencoder, stn: nn.Mo
 
 @torch.no_grad()
 def visualize_training(inputs: dict, batch_transformer, encoded_keys: torch.Tensor, atlas: torch.Tensor,
-                       autoencoder, epoch, save_path=None):
+                       autoencoder, epoch, save_path):
 
     indices, keys, masks, images = inputs["current_im_idx"], inputs["keys"], inputs["masks"], inputs["images"]
     warped_encoded_keys = batch_transformer(encoded_keys)
@@ -194,55 +194,16 @@ def visualize_training(inputs: dict, batch_transformer, encoded_keys: torch.Tens
     batch_transformer.set_image_size(atlas.shape[-2:])
     atlas_unwarped = batch_transformer(atlas, inverse=True)
 
-    # save figures
-    if save_path:
-        dir_path = Path(os.path.dirname(save_path)) / f"epoch_{epoch}"
-        os.makedirs(dir_path, exist_ok=True)
-        os.makedirs(dir_path / "keys", exist_ok=True)
-        os.makedirs(dir_path / "images", exist_ok=True)
-        for idx, encoded_key, warp_encoded_key, img, warp_img in zip(indices, encoded_keys, warped_encoded_keys, images, warped_images):
-            encoded_key = (encoded_key - encoded_key.min()) / (encoded_key.max() - encoded_key.min())
-            warp_encoded_key = (warp_encoded_key - warp_encoded_key.min()) / (warp_encoded_key.max() - warp_encoded_key.min())
-            plt.imsave(dir_path / "keys" / f"{idx:02d}.png", (encoded_key.permute(1, 2, 0).cpu().numpy() * 255).astype(np.uint8))
-            plt.imsave(dir_path / "keys" / f"{idx:02d}_warped.png", (warp_encoded_key.permute(1, 2, 0).cpu().numpy() * 255).astype(np.uint8))
-            plt.imsave(dir_path / "images" / f"{idx:02d}.png", (img.permute(1, 2, 0).cpu().numpy() * 255).astype(np.uint8))
-            plt.imsave(dir_path / "images" / f"{idx:02d}_warped.png", (warp_img.permute(1, 2, 0).cpu().numpy() * 255).astype(np.uint8))
+    dir_path = Path(os.path.dirname(save_path)) / f"epoch_{epoch}"
+    os.makedirs(dir_path, exist_ok=True)
+    os.makedirs(dir_path / "features", exist_ok=True)
+    os.makedirs(dir_path / "images", exist_ok=True)
+    for idx, encoded_key, warp_encoded_key, img, warp_img in zip(indices, encoded_keys, warped_encoded_keys, images, warped_images):
+        encoded_key = (encoded_key - encoded_key.min()) / (encoded_key.max() - encoded_key.min())
+        warp_encoded_key = (warp_encoded_key - warp_encoded_key.min()) / (warp_encoded_key.max() - warp_encoded_key.min())
+        plt.imsave(dir_path / "features" / f"{idx:02d}.png", (encoded_key.permute(1, 2, 0).cpu().numpy() * 255).astype(np.uint8))
+        plt.imsave(dir_path / "features" / f"{idx:02d}_warped.png", (warp_encoded_key.permute(1, 2, 0).cpu().numpy() * 255).astype(np.uint8))
+        plt.imsave(dir_path / "images" / f"{idx:02d}.png", (img.permute(1, 2, 0).cpu().numpy() * 255).astype(np.uint8))
+        plt.imsave(dir_path / "images" / f"{idx:02d}_warped.png", (warp_img.permute(1, 2, 0).cpu().numpy() * 255).astype(np.uint8))
 
-    row_titles = ['Masks', 'Encoded Keys', 'Warped Encoded Keys', 'Atlas (repeated)', 'Decoded Atlas Unwarped']
-    column_titles = [f'Img {i+1}' for i in range(len(keys))]
-    all_imgs = [masks, encoded_keys, warped_encoded_keys, atlas]
-
-    imgs_ranges = [(x.min(), x.max()) for x in all_imgs]
-    
-    fig, axes = plt.subplots(nrows=len(all_imgs), ncols=len(keys), figsize=(int(1.5 * len(keys)) + 1, int(1.5 * len(all_imgs)) + 1))
-    
-    if len(all_imgs) == 1:
-        axes = [axes]
-    if len(keys) == 1:
-        axes = [[ax] for ax in axes]
-        
-    for row_idx, row_data in enumerate(all_imgs):
-        imgs_min, imgs_max = imgs_ranges[row_idx]
-        for col_idx, img in enumerate(row_data):
-            img_normalized = (img - imgs_min) / (imgs_max - imgs_min)
-
-            ax = axes[row_idx][col_idx]
-            ax.imshow(img_normalized.permute(1, 2, 0).cpu().numpy(), aspect='auto', extent=ax.get_xlim() + ax.get_ylim())
-            ax.axis('off')
-
-            if col_idx == 0:
-                ax.text(-1.5, 0.5, f'{row_titles[row_idx]}\n({imgs_min:.2f}, {imgs_max:.2f})\n{list(img.shape)}', rotation=0, size='large', verticalalignment='center', transform=ax.transAxes)
-            if row_idx == 0:
-                ax.set_title(column_titles[col_idx])
-
-    plt.tight_layout()
-    plt.subplots_adjust(top=0.95)
-    plt.suptitle(f"Training Visualization Epoch {epoch}", fontsize=20, y=1.02)
-
-    if save_path:
-        fig.savefig(save_path, bbox_inches='tight', pad_inches=0.3, facecolor='white')
-        print(f"Saved plot to {save_path}")
-    else:
-        plt.show()
-    plt.close()
 
