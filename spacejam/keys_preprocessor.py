@@ -40,7 +40,7 @@ class KeysPreprocessor:
 
 
     def _extract_images(self, data_folder: Path):
-        images_folder_path = data_folder.joinpath("images")
+        images_folder_path = data_folder / 'images' if (data_folder / 'images').is_dir() else data_folder
 
         # Collect all the image files
         input_files = sorted(list(images_folder_path.glob("*.jpeg")) +
