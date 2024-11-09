@@ -49,8 +49,8 @@ python train.py --help
 
 ## Cite
 ```
-@inproceedings{Barel:ECCV:2024:spacejam,
-      title={SpaceJAM: a Lightweight and Regularization-free Method for Fast Joint Alignment of Images}, 
+@inproceedings{Barel:ECCV:2024:SpaceJAM,
+      title={{SpaceJAM}: a Lightweight and Regularization-free Method for Fast Joint Alignment of Images},
       author={Nir Barel and Ron Shapira Weber and Nir Mualem and Shahaf E. Finder and Oren Freifeld},
       year={2024},
       booktitle={European Conference on Computer Vision},
