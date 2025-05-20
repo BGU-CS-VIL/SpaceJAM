@@ -130,10 +130,10 @@ class LieHomographySTN(STN):
         elif self._transformation_type == "affine":
             theta[:, 2, :] = 0
         elif self._transformation_type == "homography":
-            pass
+            # making sure det = 1 for all transformations
+            theta[:, 2, 2] = -(theta[:, 0, 0] + theta[:, 1, 1])
 
-        # making sure det = 1 for all transformations
-        theta[:, 2, 2] = -(theta[:, 0, 0] + theta[:, 1, 1])
+        
 
         return theta
 
